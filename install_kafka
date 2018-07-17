@@ -1,0 +1,35 @@
+https://aws.amazon.com/blogs/big-data/real-time-stream-processing-using-apache-spark-streaming-and-apache-kafka-on-aws/
+
+ssh -i ~/HadoopCluster.pem ec2-user@ec2-54-85-62-208.compute-1.amazonaws.com
+
+Install Kafka:
+1. wget http://mirrors.advancedhosters.com/apache/kafka/0.10.2.1/kafka_2.11-0.10.2.1.tgz
+2. tar -xzf kafka_2.11-0.10.2.1.tgz
+3. rm kafka_2.11-0.10.2.1.tgz
+
+Start Zookeeper:
+1. cd kafka_2.11-0.10.2.1/
+2. nohup bin/zookeeper-server-start.sh config/zookeeper.properties > ~/zookeeper-logs 2>&1 &
+
+Install Java 8:
+wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u141-b15/336fa29ff2bb4ef291e347e091f7f4a7/jdk-8u141-linux-x64.rpm
+sudo yum install -y jdk-8u141-linux-x64.rpm
+java -version
+
+Start Kafka Server:
+1. cd kafka_2.11-0.10.2.1/
+2. modify the properties file config/server.properties by adding a line: listeners=PLAINTEXT://ec2-54-85-62-208.compute-1.amazonaws.com:9092
+3. nohup bin/kafka-server-start.sh config/server.properties > ~/kafka-logs 2>&1 &
+
+Create Kafka Topic:
+1. bin/kafka-topics.sh --zookeeper ec2-54-85-62-208.compute-1.amazonaws.com:2181 --create --topic test --partitions 1 --replication-factor 1
+
+List Topics:
+1. bin/kafka-topics.sh --zookeeper ec2-54-85-62-208.compute-1.amazonaws.com:2181 --list
+
+
+Start CLI Producer:
+1. bin/kafka-console-producer.sh --broker-list ec2-54-85-62-208.compute-1.amazonaws.com:9092 --topic test
+
+Start CLI Consumer:
+1. bin/kafka-console-consumer.sh --zookeeper ec2-54-85-62-208.compute-1.amazonaws.com:2181 --topic test --from-beginning

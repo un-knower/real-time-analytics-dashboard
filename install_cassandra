@@ -1,0 +1,26 @@
+http://cassandra.apache.org/doc/latest/getting_started/installing.html
+http://cassandra.apache.org/download/
+sudo yum install jna
+
+sudo vi /etc/cassandra/conf/cassandra.yaml
+rpc_address: <PRIVATE IP>
+start_rpc: true
+
+CREATE KEYSPACE Test WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+CREATE TABLE click_analytics(
+   click_time timestamp,
+   country text,
+   city text,
+   PRIMARY KEY (click_time, country, city)
+);
+
+INSERT INTO click_analytics (click_time, country, city) VALUES ('2018-06-01 00:00:00', 'US', 'Austin');
+
+import com.datastax.driver.core._
+
+val cluster = Cluster.builder().addContactPoint("ec2-54-85-62-208.compute-1.amazonaws.com").build()
+val session = cluster.connect("test")
+
+val query = "INSERT INTO click_analytics (click_time, country, city) VALUES ('2018-06-01 00:00:00', 'US', 'Dallas')"
+session.execute(query)
