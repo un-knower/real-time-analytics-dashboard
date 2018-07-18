@@ -1,3 +1,4 @@
+*.sc
 *.class
 *.log
 build.sbt_back

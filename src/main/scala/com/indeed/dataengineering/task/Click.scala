@@ -1,5 +1,9 @@
 package com.indeed.dataengineering.task
 
+/**
+  * Created by aguyyala on 10/19/17.
+  */
+
 import java.sql.Timestamp
 
 case class ClickRawData(timestamp: Timestamp, country: String, city: String)

@@ -30,6 +30,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion % sparkDependencyScope,
   "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion,
   "org.apache.kafka" %% "kafka" % "0.10.0.1",
+  "org.json4s" %% "json4s-jackson" % "3.5.3",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion
 
