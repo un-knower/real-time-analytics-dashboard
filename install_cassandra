@@ -6,6 +6,17 @@ sudo vi /etc/cassandra/conf/cassandra.yaml
 rpc_address: <PRIVATE IP>
 start_rpc: true
 
+SELECT count(*) FROM click_raw_data;
+SELECT * FROM click_count_by_interval;
+SELECT * FROM click_count_by_day;
+SELECT * FROM click_count_by_hour;
+SELECT * FROM click_count_by_month;
+SELECT SUM(click_count) FROM click_count_by_country_city;
+SELECT * FROM click_count_by_week;
+SELECT * FROM click_count_by_day_of_year;
+SELECT * FROM click_count_by_day_of_month;
+SELECT * FROM click_count_by_year;
+
 
 CREATE KEYSPACE clickstream WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 

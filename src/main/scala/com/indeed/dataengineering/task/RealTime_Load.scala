@@ -87,16 +87,15 @@ class RealTime_Load {
       def open(partitionId: Long, version: Long): Boolean = true
 
       def process(value: Click): Unit = {
-        val cQuery1 = s"USE $keyspace"
-        val cQuery2 = s"INSERT INTO click_raw_data (click_time, country, city) VALUES ('${value.timestamp}', '${value.country}', '${value.city}')"
-        val cQuery3 = s"UPDATE click_count_by_day SET click_count = click_count + 1 WHERE day = '${value.day}'"
-        val cQuery4 = s"UPDATE click_count_by_hour SET click_count = click_count + 1 WHERE hour = ${value.hour}"
-        val cQuery5 = s"UPDATE click_count_by_month SET click_count = click_count + 1 WHERE month = '${value.month}'"
-        val cQuery6 = s"UPDATE click_count_by_country_city SET click_count = click_count + 1 WHERE country = '${value.country}' AND city = '${value.city}'"
-        val cQuery7 = s"UPDATE click_count_by_week SET click_count = click_count + 1 WHERE week = ${value.week}"
-        val cQuery8 = s"UPDATE click_count_by_day_of_year SET click_count = click_count + 1 WHERE day_of_year = ${value.day_of_year}"
-        val cQuery9 = s"UPDATE click_count_by_day_of_month SET click_count = click_count + 1 WHERE day_of_month = ${value.day_of_month}"
-        val cQuery10 = s"UPDATE click_count_by_year SET click_count = click_count + 1 WHERE year = ${value.year}"
+        val cQuery1 = s"INSERT INTO $keyspace.click_raw_data (click_time, country, city) VALUES ('${value.timestamp}', '${value.country}', '${value.city}')"
+        val cQuery2 = s"UPDATE $keyspace.click_count_by_day SET click_count = click_count + 1 WHERE day = '${value.day}'"
+        val cQuery3 = s"UPDATE $keyspace.click_count_by_hour SET click_count = click_count + 1 WHERE hour = ${value.hour}"
+        val cQuery4 = s"UPDATE $keyspace.click_count_by_month SET click_count = click_count + 1 WHERE month = '${value.month}'"
+        val cQuery5 = s"UPDATE $keyspace.click_count_by_country_city SET click_count = click_count + 1 WHERE country = '${value.country}' AND city = '${value.city}'"
+        val cQuery6 = s"UPDATE $keyspace.click_count_by_week SET click_count = click_count + 1 WHERE week = ${value.week}"
+        val cQuery7 = s"UPDATE $keyspace.click_count_by_day_of_year SET click_count = click_count + 1 WHERE day_of_year = ${value.day_of_year}"
+        val cQuery8 = s"UPDATE $keyspace.click_count_by_day_of_month SET click_count = click_count + 1 WHERE day_of_month = ${value.day_of_month}"
+        val cQuery9 = s"UPDATE $keyspace.click_count_by_year SET click_count = click_count + 1 WHERE year = ${value.year}"
 
         connector.withSessionDo{session =>
           session.execute(cQuery1)
@@ -108,7 +107,6 @@ class RealTime_Load {
           session.execute(cQuery7)
           session.execute(cQuery8)
           session.execute(cQuery9)
-          session.execute(cQuery10)
         }
       }
 
@@ -125,7 +123,7 @@ class RealTime_Load {
       def open(partitionId: Long, version: Long): Boolean = true
 
       def process(value: LiveClickCount): Unit = {
-        val cQuery1 = s"INSERT INTO click_count_by_interval(click_time, click_count) VALUES ('${value.timestamp}', ${value.click_count})"
+        val cQuery1 = s"INSERT INTO $keyspace.click_count_by_interval(click_time, click_count) VALUES ('${value.timestamp}', ${value.click_count})"
         connector.withSessionDo(session => session.execute(cQuery1))
       }
 
@@ -140,14 +138,16 @@ class RealTime_Load {
 
     if (conf.getOrElse("debug", "false") == "true") {
       val debugQuery = massagedClickData.writeStream.format("console").outputMode("update").start()
+      log.info("Await debugQuery Termination")
       debugQuery.awaitTermination()
     }
+
+    log.info("Await liveCountQuery Termination")
+    liveCountQuery.awaitTermination()
 
     log.info("Await streamQuery Termination")
     streamQuery.awaitTermination()
 
-    log.info("Await liveCountQuery Termination")
-    liveCountQuery.awaitTermination()
 
 
   }
