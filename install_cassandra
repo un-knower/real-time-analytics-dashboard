@@ -6,8 +6,8 @@ sudo vi /etc/cassandra/conf/cassandra.yaml
 rpc_address: <PRIVATE IP>
 start_rpc: true
 
-SELECT count(*) FROM click_raw_data;
-SELECT * FROM click_count_by_interval;
+SELECT COUNT(*) FROM click_raw_data;
+SELECT SUM(click_count) FROM click_count_by_interval;
 SELECT * FROM click_count_by_day;
 SELECT * FROM click_count_by_hour;
 SELECT * FROM click_count_by_month;
