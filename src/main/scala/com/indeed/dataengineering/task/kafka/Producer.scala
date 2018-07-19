@@ -34,14 +34,15 @@ object Producer extends App {
   val producer = new KafkaProducer[String, String](props)
 
   val rand = scala.util.Random
-  val runFor = conf.getOrElse("runFor", "10").toInt
-  val recordsPerRun = conf.getOrElse("recordsPerRun", "10").toInt
-  val sleepTime = conf.getOrElse("sleepTime", "1000").toInt
+  val runFor = conf.getOrElse("runFor", "5").toInt
+  val recordsPerRun = conf.getOrElse("recordsPerRun", "20").toInt
+  val sleepTime = conf.getOrElse("sleepTime", "300").toInt
 
-  val deadline = runFor.seconds.fromNow
-  var cnt = 10
-  while (cnt > 0) {
-    for (_ <- 1 to recordsPerRun) {
+  val deadline = runFor.minutes.fromNow
+  var cnt = 0
+  while (deadline.hasTimeLeft) {
+    cnt = 30 + rand.nextInt(recordsPerRun)
+    while (cnt > 0) {
       val randTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(start + (Math.random * diff).toLong))
       val currentTimestamp = DateTime.now.toString("yyyy-MM-dd HH:mm:ss")
 
@@ -50,10 +51,10 @@ object Producer extends App {
       val (country, city) = countries(rand.nextInt(countries.length))
       val record = new ProducerRecord[String, String](topic, s"$timestamp,$country,$city")
       producer.send(record).get
+      cnt -= 1
     }
 
     Thread.sleep(sleepTime)
-    cnt -= 1
   }
 
   cleanup()

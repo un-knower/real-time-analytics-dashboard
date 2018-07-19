@@ -137,7 +137,7 @@ class RealTime_Load {
     val liveCountQuery = windowedCounts.selectExpr("window.end AS timestamp", "CAST(count AS Int) AS click_count").as[LiveClickCount].writeStream.outputMode("update").foreach(liveCountWriter).start
 
     if (conf.getOrElse("debug", "false") == "true") {
-      val debugQuery = massagedClickData.writeStream.format("console").outputMode("update").start()
+      val debugQuery = massagedClickData.writeStream.format("console").outputMode(conf.getOrElse("outputMode", "update")).start()
       log.info("Await debugQuery Termination")
       debugQuery.awaitTermination()
     }
