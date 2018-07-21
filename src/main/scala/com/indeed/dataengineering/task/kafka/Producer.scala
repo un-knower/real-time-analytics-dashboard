@@ -50,7 +50,9 @@ object Producer extends App {
 
       val (country, city) = countries(rand.nextInt(countries.length))
       val record = new ProducerRecord[String, String](topic, s"$timestamp,$country,$city")
-      producer.send(record).get
+      try { producer.send(record).get }
+      catch { case e: Throwable => println(e) }
+
       cnt -= 1
     }
 

@@ -87,7 +87,7 @@ class RealTime_Load {
       def open(partitionId: Long, version: Long): Boolean = true
 
       def process(value: Click): Unit = {
-        val cQuery1 = s"INSERT INTO $keyspace.click_raw_data (click_time, country, city) VALUES ('${value.timestamp}', '${value.country}', '${value.city}')"
+        val cQuery1 = s"INSERT INTO $keyspace.click_raw_data (click_time, country, city) VALUES ('${value.timestamp}', '${value.country}', '${value.city}') USING TTL 600"
         val cQuery2 = s"UPDATE $keyspace.click_count_by_day SET click_count = click_count + 1 WHERE day = '${value.day}'"
         val cQuery3 = s"UPDATE $keyspace.click_count_by_hour SET click_count = click_count + 1 WHERE hour = ${value.hour}"
         val cQuery4 = s"UPDATE $keyspace.click_count_by_month SET click_count = click_count + 1 WHERE month = '${value.month}'"
@@ -123,7 +123,7 @@ class RealTime_Load {
       def open(partitionId: Long, version: Long): Boolean = true
 
       def process(value: LiveClickCount): Unit = {
-        val cQuery1 = s"INSERT INTO $keyspace.click_count_by_interval(click_time, click_count) VALUES ('${value.timestamp}', ${value.click_count})"
+        val cQuery1 = s"INSERT INTO $keyspace.click_count_by_interval(click_time, click_count) VALUES ('${value.timestamp}', ${value.click_count}) USING TTL 600"
         connector.withSessionDo(session => session.execute(cQuery1))
       }
 

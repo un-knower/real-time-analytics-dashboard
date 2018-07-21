@@ -121,6 +121,10 @@ CREATE TABLE click_count_by_year (
 UPDATE click_count_by_year SET click_count = click_count + 1 WHERE year = 2018;
 SELECT * FROM click_count_by_year;
 
+ALTER TABLE click_raw_data WITH gc_grace_seconds = 600 AND 
+compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy', 
+'base_time_seconds': '600', 'max_threshold': '32', 'min_threshold': '4', 'unchecked_tombstone_compaction': 'true', 
+'tombstone_compaction_interval': '600', 'tombstone_threshold': '0.1', 'max_window_size_seconds': '600'};
 
 case class ClickRawData(clickTime: Timestamp, country: String, city: String)
 
