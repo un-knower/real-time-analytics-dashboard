@@ -18,7 +18,12 @@ java -version
 
 Start Kafka Server:
 1. cd kafka_2.11-0.10.2.1/
-2. modify the properties file config/server.properties by adding a line: listeners=PLAINTEXT://ec2-54-85-62-208.compute-1.amazonaws.com:9092
+2. modify the properties file config/server.properties by adding a line: 
+listeners=PLAINTEXT://ec2-54-85-62-208.compute-1.amazonaws.com:9092
+log.retention.hours=1
+log.retention.check.interval.ms=300000
+bin/kafka-configs.sh --zookeeper localhost --alter --entity-type topics --entity-name test --add-config retention.ms=1800000
+
 3. nohup bin/kafka-server-start.sh config/server.properties > ~/kafka-logs 2>&1 &
 
 Create Kafka Topic:

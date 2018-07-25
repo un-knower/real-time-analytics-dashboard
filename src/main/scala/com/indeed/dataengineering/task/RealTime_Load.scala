@@ -114,7 +114,7 @@ class RealTime_Load {
     }
 
     log.info("Write Streams to Cassandra Table")
-    val streamQuery = massagedClickData.as[Click].writeStream.foreach(clickWriter).outputMode("append").start
+    val streamQuery = massagedClickData.withWatermark("timestamp", "1 minute").as[Click].writeStream.foreach(clickWriter).outputMode("append").start
 
 
     log.info("Create LiveCount ForeachWriter for Cassandra")

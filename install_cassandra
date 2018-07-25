@@ -5,6 +5,7 @@ sudo yum install jna
 sudo vi /etc/cassandra/conf/cassandra.yaml
 rpc_address: <PRIVATE IP>
 start_rpc: true
+commitlog_total_space_in_mb: 32
 
 SELECT COUNT(*) FROM click_raw_data;
 SELECT SUM(click_count) FROM click_count_by_interval;
