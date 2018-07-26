@@ -22,12 +22,14 @@ Start Kafka Server:
 listeners=PLAINTEXT://ec2-54-85-62-208.compute-1.amazonaws.com:9092
 log.retention.hours=1
 log.retention.check.interval.ms=300000
-bin/kafka-configs.sh --zookeeper localhost --alter --entity-type topics --entity-name test --add-config retention.ms=1800000
+bin/kafka-configs.sh --zookeeper localhost --alter --entity-type topics --entity-name maxwell --add-config retention.ms=1800000
 
 3. nohup bin/kafka-server-start.sh config/server.properties > ~/kafka-logs 2>&1 &
 
 Create Kafka Topic:
 1. bin/kafka-topics.sh --zookeeper ec2-54-85-62-208.compute-1.amazonaws.com:2181 --create --topic test --partitions 1 --replication-factor 1
+
+bin/kafka-topics.sh --zookeeper ec2-54-85-62-208.compute-1.amazonaws.com:2181 --create --topic maxwell --partitions 1 --replication-factor 1
 
 List Topics:
 1. bin/kafka-topics.sh --zookeeper ec2-54-85-62-208.compute-1.amazonaws.com:2181 --list
@@ -38,3 +40,4 @@ Start CLI Producer:
 
 Start CLI Consumer:
 1. bin/kafka-console-consumer.sh --zookeeper ec2-54-85-62-208.compute-1.amazonaws.com:2181 --topic test --from-beginning
+2. bin/kafka-console-consumer.sh --bootstrap-server ec2-54-85-62-208.compute-1.amazonaws.com:9092 --topic maxwell --from-beginning
