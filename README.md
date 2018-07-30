@@ -30,7 +30,7 @@ in minutes you want it to produce events.
 `nohup java -cp RealTime_Load-assembly-1.0-SNAPSHOT.jar com.indeed.dataengineering.task.kafka.Producer -e=dev --runFor=10 --sleepTime=1000 > kafka.log 2>&1 &`
 
 * Run the following command to initiate the Dash dashboard to see the click stream events flowing to cassandra. You can see
-the dashboard on http://<ec2 instance>:8050/
+the dashboard on `http://<ec2 instance>:8050/`
 
 `nohup python app.py <ec2-instance> > dash.log 2>&1 &`
 
@@ -53,6 +53,6 @@ RealTime_Load-assembly-1.0-SNAPSHOT.jar -e=prod
 
 ## Working Prototype
 
-if everything is setup correctly, When the following link http://<ec2-instance>:8050/ is open, you should see the following.
+If everything is setup correctly, when the link `http://<ec2-instance>:8050/` is open, you should see the following.
 
 ![Alt Text](https://github.com/aguyyala/real-time-analytics-dashboard/blob/master/Live_Click_Count.gif)
