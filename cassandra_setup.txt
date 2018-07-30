@@ -1,0 +1,162 @@
+Cassandra Installation Doc: http://cassandra.apache.org/doc/latest/getting_started/installing.html
+Cassandra Download Link: http://cassandra.apache.org/download/
+Install JNA: sudo yum install jna
+
+Once Cassandra is installed, edit the following properties in cassandra.yaml file
+
+sudo vi /etc/cassandra/conf/cassandra.yaml
+# change rpc address to private ip of ec2 on which it is installed.
+rpc_address: <PRIVATE IP of EC2>
+
+# change start_rpc to true to make it accessible from outside the box
+start_rpc: true
+
+# Total space used for commitlogs. Cassandra flushes memtables to disk for the oldest commitlog segments, removing those log segments.
+commitlog_total_space_in_mb: 32
+
+
+# Create Keyspace in Cassandra
+CREATE KEYSPACE clickstream WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+
+# Create and test all the tables
+CREATE TABLE click_raw_data(
+   click_time timestamp,
+   country text,
+   city text,
+   PRIMARY KEY (click_time, country, city)
+);
+
+INSERT INTO click_raw_data (click_time, country, city) VALUES ('2018-06-01 00:00:00', 'US', 'Austin');
+SELECT * FROM click_raw_data;
+
+
+CREATE TABLE click_count_by_interval (
+  click_time timestamp,	
+  click_count Int,
+  PRIMARY KEY (click_time)
+  );
+
+INSERT INTO click_count_by_interval(click_time, click_count) VALUES ('2018-06-01 00:00:00', 10);
+SELECT * FROM click_count_by_interval;
+
+
+CREATE TABLE click_count_by_day (
+  day text,	
+  click_count counter,
+  PRIMARY KEY (day)
+  );
+
+UPDATE click_count_by_day SET click_count = click_count + 1 WHERE day = 'Monday';
+SELECT * FROM click_count_by_day;
+
+
+CREATE TABLE click_count_by_hour (
+  hour int,	
+  click_count counter,
+  PRIMARY KEY (hour)
+  );
+
+UPDATE click_count_by_hour SET click_count = click_count + 1 WHERE hour = 1;
+SELECT * FROM click_count_by_hour;
+
+
+CREATE TABLE click_count_by_month (
+  month text,	
+  click_count counter,
+  PRIMARY KEY (month)
+  );
+
+UPDATE click_count_by_month SET click_count = click_count + 1 WHERE month = 'January';
+SELECT * FROM click_count_by_month;
+
+
+CREATE TABLE click_count_by_country_city (
+  country text,	
+  city text,
+  click_count counter,
+  PRIMARY KEY (country, city)
+  );
+
+UPDATE click_count_by_country_city SET click_count = click_count + 1 WHERE country = 'US' AND city = 'Austin';
+SELECT * FROM click_count_by_country_city;
+
+
+CREATE TABLE click_count_by_week (
+  week int,	
+  click_count counter,
+  PRIMARY KEY (week)
+  );
+
+UPDATE click_count_by_week SET click_count = click_count + 1 WHERE week = 1;
+SELECT * FROM click_count_by_week;
+
+
+CREATE TABLE click_count_by_day_of_year (
+  day_of_year int,	
+  click_count counter,
+  PRIMARY KEY (day_of_year)
+  );
+
+UPDATE click_count_by_day_of_year SET click_count = click_count + 1 WHERE day_of_year = 1;
+SELECT * FROM click_count_by_day_of_year;
+
+
+CREATE TABLE click_count_by_day_of_month (
+  day_of_month int,	
+  click_count counter,
+  PRIMARY KEY (day_of_month)
+  );
+
+UPDATE click_count_by_day_of_month SET click_count = click_count + 1 WHERE day_of_month = 1;
+SELECT * FROM click_count_by_day_of_month;
+
+
+CREATE TABLE click_count_by_year (
+  year int,	
+  click_count counter,
+  PRIMARY KEY (year)
+  );
+
+UPDATE click_count_by_year SET click_count = click_count + 1 WHERE year = 2018;
+SELECT * FROM click_count_by_year;
+
+
+# Alter table properties and change compaction strategy and thresholds to handle tombstones gracefully without warnings and save disk space
+ALTER TABLE click_raw_data WITH gc_grace_seconds = 600 AND 
+compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy', 
+'base_time_seconds': '600', 'max_threshold': '32', 'min_threshold': '4', 'unchecked_tombstone_compaction': 'true', 
+'tombstone_compaction_interval': '600', 'tombstone_threshold': '0.1', 'max_window_size_seconds': '600'};
+
+ALTER TABLE click_count_by_interval WITH gc_grace_seconds = 600 AND
+compaction = {'class': 'org.apache.cassandra.db.compaction.DateTieredCompactionStrategy',
+'base_time_seconds': '600', 'max_threshold': '32', 'min_threshold': '4', 'unchecked_tombstone_compaction': 'true',
+'tombstone_compaction_interval': '600', 'tombstone_threshold': '0.1', 'max_window_size_seconds': '600'};
+
+
+SELECT COUNT(*) FROM click_raw_data;
+SELECT SUM(click_count) FROM click_count_by_interval;
+SELECT * FROM click_count_by_day;
+SELECT * FROM click_count_by_hour;
+SELECT * FROM click_count_by_month;
+SELECT SUM(click_count) FROM click_count_by_country_city;
+SELECT * FROM click_count_by_week;
+SELECT * FROM click_count_by_day_of_year;
+SELECT * FROM click_count_by_day_of_month;
+SELECT * FROM click_count_by_year;
+
+
+
+# Access plain cassandra from Spark/Scala
+import com.datastax.driver.core._
+
+case class ClickRawData(clickTime: Timestamp, country: String, city: String)
+
+val cluster = Cluster.builder().addContactPoint("<ec2-instance>").build()
+val session = cluster.connect("test")
+
+val query = "INSERT INTO click_analytics (click_time, country, city) VALUES ('2018-06-01 00:00:00', 'US', 'Dallas')"
+session.execute(query)
+
+
+

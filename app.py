@@ -1,3 +1,4 @@
+import sys
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -37,7 +38,7 @@ def pandas_factory(colnames, rows):
 
     return pd.DataFrame([(0, 0)], columns=colnames)
 
-cluster = Cluster(contact_points=['ec2-54-85-62-208.compute-1.amazonaws.com'])
+cluster = Cluster(contact_points=['172.31.6.16'])
 
 session = cluster.connect()
 session.set_keyspace('clickstream')
@@ -58,7 +59,7 @@ def gen_wind_speed(interval):
 
     rows = session.execute(query)
     tmpDf = rows._current_rows
-    df = tmpDf.sort('click_time')
+    df = tmpDf.sort_values('click_time')
 
     trace = Scatter(
         y=df['click_count'],
@@ -114,4 +115,4 @@ if 'DYNO' in os.environ:
     })
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(host='%s' %(sys.argv[1]))
