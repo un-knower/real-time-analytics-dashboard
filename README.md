@@ -17,6 +17,11 @@ ran on EMR cluster and I installed zookeeper, kafka, cassandra, and dash on sing
 * Spin up an EMR(emr-5.15.0) cluster which has Hadoop & Spark(2.3)
 
 
+## Real Time Data Flow
+Events (clickstream, IOT sensors, tweets etc) ==> Kafka (messaging queue) ==> Spark Streaming (Real Time ETL) ==> Cassandra (Datastore) ==> Dash (Real Time Dashboard)
+![Alt Text](https://github.com/aguyyala/real-time-analytics-dashboard/blob/master/real-time-architecture.png)
+
+
 ## Usage
 
 * Run `sbt clean assembly` to build the jar
