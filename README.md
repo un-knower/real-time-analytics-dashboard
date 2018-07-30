@@ -1,4 +1,5 @@
-# Real Time Analytics Dashboard using SHACK (Spark Structured Streaming, Hadoop, Akka, Cassandra, Kafka) Stack
+# Real Time Analytics Dashboard using SHACK (Spark Structured Streaming, Hadoop, Akka, Cassandra, Kafka) Stack and Dash by Plotly an open source real time dashboard
+
 This project contains all the details on how to build Real Time Analytics Dashboard to analyze click stream events.
 
 The real time dashboard displays live incoming clicks aggregated per second.
