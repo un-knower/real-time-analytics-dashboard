@@ -16,7 +16,7 @@ commitlog_total_space_in_mb: 32
 
 
 # Create Keyspace in Cassandra
-CREATE KEYSPACE clickstream WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+CREATE KEYSPACE test WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 
 
 # Create and test all the tables
@@ -160,3 +160,124 @@ session.execute(query)
 
 
 
+
+
+// Setup Cassandra Cluster in EC2.
+
+1. ssh -i ~/.aws/HadoopCluster.pem ec2-user@ec2-34-235-116-246.compute-1.amazonaws.com
+
+2. vi setup_cassandra.sh
+
+# First we need Java8 (Cassandra is not yet well tested with Java 9)
+yum -y update
+sudo yum install jna -y
+
+# Install cassandra
+cat <<EOT >>  /etc/yum.repos.d/cassandra.repo
+[cassandra]
+name=Apache Cassandra
+baseurl=https://www.apache.org/dist/cassandra/redhat/311x/
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://www.apache.org/dist/cassandra/KEYS
+EOT
+
+sudo yum install cassandra -y
+
+3. sudo sh setup_cassandra.sh
+
+4. sudo vi /etc/cassandra/conf/cassandra.yaml
+cluster_name: 'DataEng Cluster'
+seeds: "172.31.1.88"
+listen_address: 172.31.15.47
+start_rpc: true
+rpc_address: 172.31.15.47
+endpoint_snitch: Ec2Snitch
+
+5. sudo service cassandra start
+6. sudo chkconfig cassandra on
+7. nodetool status
+8. cqlsh 172.31.1.88
+9. Cassandra Logs Dir: tail -f /var/log/cassandra/cassandra.log
+
+cqlsh 172.31.1.88
+
+CREATE KEYSPACE adcentraldb WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+CREATE TABLE adcentraldb.tbladcaccounts_salesrep_commissions 
+( 
+  date                                   DATE, 
+  advertiser_id                          INT, 
+  salesrep_id                            INT, 
+  revenue_jobsearch_millicents           BIGINT, 
+  revenue_dradis_lifetime_millicents     BIGINT,
+  revenue_dradis_recurring_millicents    BIGINT,
+  revenue_resume_millicents              BIGINT,
+  revenue_ineligible_millicents          BIGINT,
+  revenue_jobsearch_local                INT,
+  revenue_dradis_lifetime_local          INT,
+  revenue_dradis_recurring_local         INT,
+  revenue_resume_local                   INT,
+  revenue_ineligible_local               INT,
+  discount_local                         INT,
+  discount_forward_local                 INT,
+  discounted_revenue_local               INT,
+  commission_rate                        DOUBLE,
+  commission_amount_local                INT,
+  commission_amount_millicents           BIGINT,
+  newrevenue_jobsearch_millicents        BIGINT,
+  newrevenue_dradis_lifetime_millicents  BIGINT,
+  newrevenue_dradis_recurring_millicents BIGINT,
+  newrevenue_resume_millicents           BIGINT,
+  currency                               TEXT,
+  date_modified                          TIMESTAMP,
+PRIMARY KEY (date, advertiser_id));
+
+CREATE KEYSPACE adsystemdb WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+CREATE TABLE adsystemdb.tbladvertiser 
+( 
+   id         INT, 
+   account_id INT, 
+   company    TEXT, 
+   contact    TEXT, 
+   url        TEXT, 
+   address1   TEXT, 
+   address2   TEXT, 
+   city       TEXT, 
+   state      TEXT, 
+   zip        TEXT, 
+   phone      TEXT, 
+   phone_type TEXT,
+   verified_phone           TEXT, 
+   verified_phone_extension TEXT, 
+   uuidstring               TEXT, 
+   date_created             TIMESTAMP, 
+   active                   INT, 
+   ip_address               TEXT, 
+   referral_id              INT, 
+   monthly_budget           DOUBLE, 
+   expended_budget          DOUBLE, 
+   type TEXT,
+   advertiser_number TEXT, 
+   show_conversions  INT, 
+   billing_threshold DOUBLE,
+   payment_method TEXT,
+   industry TEXT,
+   agency_discount DOUBLE,
+   is_ad_agency    INT, 
+   process_level TEXT,
+   estimated_budget       DOUBLE, 
+   first_revenue_date     DATE, 
+   last_revenue_date      DATE, 
+   first_revenue_override DATE, 
+   terms TEXT,
+   currency TEXT, 
+   monthly_budget_local    BIGINT,
+   expended_budget_local   BIGINT,
+   billing_threshold_local BIGINT,
+   estimated_budget_local  BIGINT,
+   employee_count TEXT, 
+   last_updated TIMESTAMP, 
+   PRIMARY KEY (id)
+) 

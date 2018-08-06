@@ -31,7 +31,17 @@ java -version
         # log retention check interval
         log.retention.check.interval.ms=300000
 
-3. change retention for topic as well: bin/kafka-configs.sh --zookeeper localhost --alter --entity-type topics --entity-name maxwell --add-config retention.ms=1800000
+        # How much data you want to retain	
+        log.retention.bytes=134217728
+
+        # Each log segment size
+		log.segment.bytes=134217728
+
+
+3. change retention for topic as well: 
+bin/kafka-configs.sh --zookeeper localhost --alter --entity-type topics --entity-name maxwell --add-config retention.ms=1800000
+
+
 4. nohup bin/kafka-server-start.sh config/server.properties > ~/kafka-logs 2>&1 &
 
 
